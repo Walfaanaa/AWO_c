@@ -17,7 +17,7 @@ except Exception as e:
     st.stop()
 
 # --- Scheduling logic ---
-start_date = datetime(2025, 1, 1)
+start_date = datetime(2025, 4, 13)
 members["celebration_date"] = [
     start_date + timedelta(days=90 * i) for i in range(len(members))
 ]
@@ -52,3 +52,4 @@ if all(members["celebration_date"] < today):
 
     st.subheader("New Round Schedule")
     st.dataframe(members)
+
