@@ -11,15 +11,23 @@ github_excel_url = "https://raw.githubusercontent.com/Walfaanaa/AWO_c/main/membe
 
 try:
     file_content = requests.get(github_excel_url).content
-    members = pd.read_excel(BytesIO(file_content))
+    members = pd.read_excel(BytesIO(file_content), engine="openpyxl")
 except Exception as e:
     st.error(f"Cannot load Excel file from GitHub: {e}")
     st.stop()
 
+# --- Function to always move date to the next Sunday ---
+def next_sunday(date):
+    # weekday(): Monday=0 ... Sunday=6
+    days_ahead = (6 - date.weekday()) % 7
+    return date + timedelta(days=days_ahead)
+
 # --- Scheduling logic ---
-start_date = datetime(2025, 4, 13)
+start_date = datetime(2025, 4, 13)  # First Sunday
+
 members["celebration_date"] = [
-    start_date + timedelta(days=90 * i) for i in range(len(members))
+    next_sunday(start_date + timedelta(days=90 * i))
+    for i in range(len(members))
 ]
 
 today = datetime.today()
@@ -45,11 +53,11 @@ if all(members["celebration_date"] < today):
 
     new_start = today
     members["celebration_date"] = [
-        new_start + timedelta(days=90 * i) for i in range(len(members))
+        next_sunday(new_start + timedelta(days=90 * i))
+        for i in range(len(members))
     ]
 
     members["status"] = members["celebration_date"].apply(status)
 
     st.subheader("New Round Schedule")
     st.dataframe(members)
-
